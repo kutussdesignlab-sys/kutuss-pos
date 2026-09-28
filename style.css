@@ -1,0 +1,387 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Fade In Animation */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animations */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.group:hover .group-hover\:bounce {
+    animation: bounce 0.5s ease infinite;
+}
+
+/* Sidebar Active State */
+.nav-item.active {
+    background-color: #f0fdfa;
+    color: #0d9488;
+    border-left: 4px solid #0d9488;
+}
+
+/* Premium Enhancements */
+.card-premium {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-premium:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.btn-hover-scale {
+    transition: transform 0.2s ease;
+}
+.btn-hover-scale:active {
+    transform: scale(0.95);
+}
+
+/* Glassmorphism sidebar (optional) */
+#sidebar {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Table Row Highlights */
+tr.hover\:bg-gray-50:hover {
+    background-color: #f8fafc !important;
+}
+
+/* Status Badges */
+.badge-paid {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+.badge-unpaid {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+#receipt-print-area,
+#quotation-a4-container,
+#receipt-a4-container,
+#payslip-a4-container {
+    display: none;
+}
+
+#quotation-a4-container.hidden,
+#receipt-a4-container.hidden,
+#payslip-a4-container.hidden {
+    display: none !important;
+}
+
+/* PRINT STYLES (80mm Thermal Printer) */
+@media print {
+    @page {
+        margin: 0;
+        size: auto;
+    }
+
+    body:not(.portal-mode):not(.printing-report) * {
+        visibility: hidden;
+    }
+
+    body:not(.portal-mode):not(.printing-report) #sidebar,
+    body:not(.portal-mode):not(.printing-report) header,
+    body:not(.portal-mode):not(.printing-report) nav,
+    body:not(.portal-mode):not(.printing-report) main,
+    body:not(.portal-mode):not(.printing-report) .md:hidden {
+        display: none !important;
+    }
+
+    /* FINANCIAL REPORT PRINTING (A4) */
+    body.printing-report {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    body.printing-report * {
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body.printing-report #sidebar,
+    body.printing-report #sidebar-overlay,
+    body.printing-report header,
+    body.printing-report nav,
+    body.printing-report div.fixed,
+    body.printing-report section:not(#reports-section),
+    body.printing-report .no-print,
+    body.printing-report #report-month,
+    body.printing-report #report-method-filter,
+    body.printing-report button {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    body.printing-report main,
+    body.printing-report #main-content,
+    body.printing-report #reports-section {
+        display: block !important;
+        visibility: visible !important;
+        position: static !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    body.printing-report #report-content {
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    body.printing-report .overflow-x-auto,
+    body.printing-report .overflow-y-auto,
+    body.printing-report .max-h-96 {
+        overflow: visible !important;
+        max-height: none !important;
+    }
+
+    body.printing-report tr,
+    body.printing-report .report-section-block {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* CUSTOMER PORTAL PRINTING */
+    body.portal-mode {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    body.portal-mode * {
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body.portal-mode #sidebar,
+    body.portal-mode #sidebar-overlay,
+    body.portal-mode header,
+    body.portal-mode nav,
+    body.portal-mode div.fixed,
+    body.portal-mode section:not(#customer-portal-section),
+    body.portal-mode .print-hidden {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    body.portal-mode main,
+    body.portal-mode #main-content {
+        display: block !important;
+        visibility: visible !important;
+        position: static !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 5mm !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    body.portal-mode #customer-portal-section {
+        display: block !important;
+        visibility: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+    }
+
+    /* RECEIPT PRINTING */
+    body.printing-receipt #receipt-print-area,
+    body.printing-receipt #receipt-print-area * {
+        visibility: visible;
+    }
+
+    body.printing-receipt #receipt-print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+        display: block !important;
+        background: white;
+        color: black;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 14px;
+        line-height: 1.4;
+        padding: 5mm;
+        font-weight: 500;
+    }
+
+    /* PAYSLIP PRINTING */
+    body.printing-payslip #payslip-print-area,
+    body.printing-payslip #payslip-print-area * {
+        visibility: visible;
+    }
+
+    /* FINAL INVOICE PRINTING */
+    body.printing-final-invoice #final-invoice-print-area,
+    body.printing-final-invoice #final-invoice-print-area * {
+        visibility: visible;
+    }
+
+    /* QUOTATION PRINTING */
+    body.printing-quotation #quotation-print-area,
+    body.printing-quotation #quotation-print-area * {
+        visibility: visible;
+    }
+
+    /* COST SHEET PRINTING */
+    body.printing-cost-sheet #cost-sheet-print-area,
+    body.printing-cost-sheet #cost-sheet-print-area * {
+        visibility: visible;
+    }
+
+    /* STANDALONE SALARY PAYSHEET PRINTING */
+    body.printing-salary-paysheet #salary-paysheet-80mm-print-area,
+    body.printing-salary-paysheet #salary-paysheet-80mm-print-area * {
+        visibility: visible;
+        color: #000000 !important;
+        font-weight: 700 !important;
+    }
+
+    body.printing-payslip #payslip-print-area,
+    body.printing-final-invoice #final-invoice-print-area,
+    body.printing-quotation #quotation-print-area,
+    body.printing-cost-sheet #cost-sheet-print-area,
+    body.printing-salary-paysheet #salary-paysheet-80mm-print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+        display: block !important;
+        background: white;
+        color: black;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 14px;
+        line-height: 1.4;
+        padding: 5mm;
+        font-weight: 500;
+    }
+
+    .receipt-container {
+        width: 100%;
+        text-align: center;
+    }
+
+    .receipt-header {
+        margin-bottom: 10px;
+    }
+
+    .receipt-header h2 {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0 0 5px 0;
+        text-transform: uppercase;
+    }
+
+    .receipt-header p {
+        margin: 2px 0;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .divider {
+        margin: 5px 0;
+        border-bottom: 1px dashed #000;
+        line-height: 0.1;
+        opacity: 0.5;
+    }
+
+    .receipt-details {
+        text-align: left;
+        margin: 10px 0;
+    }
+
+    .receipt-details .row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+
+    .receipt-details .label {
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .receipt-details .value {
+        text-align: right;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .receipt-details .customer-name {
+        font-weight: bold;
+        display: block;
+        margin-left: 10px;
+        margin-bottom: 5px;
+        font-size: 16px;
+        text-transform: uppercase;
+    }
+
+    .receipt-total {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        font-size: 18px;
+        margin: 10px 0;
+        border: 1px solid black;
+        padding: 5px;
+    }
+
+    .receipt-footer {
+        margin-top: 10px;
+        font-size: 12px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .receipt-footer .tiny {
+        font-size: 8px;
+        color: #555;
+    }
+}
