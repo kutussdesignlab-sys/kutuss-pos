@@ -7,8 +7,8 @@
  */
 
 window.DEFAULT_SUPABASE_CONFIG = {
-    url: "",      // e.g. "https://xxxxxxxxxxxxxxxxxxxx.supabase.co"
-    anonKey: ""  // e.g. "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    url: "https://kogkjjvamdeslqvibgvf.supabase.co",
+    anonKey: "sb_publishable_LpqugjR_MeUvV_qhYwjNzA_Erk_hBKH"
 };
 
 // Retrieve config from localStorage (UI configured) or fallback to DEFAULT_SUPABASE_CONFIG

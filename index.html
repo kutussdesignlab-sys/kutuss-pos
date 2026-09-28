@@ -786,9 +786,9 @@
                     <h2 class="text-2xl font-bold text-gray-800">Expenses</h2>
                     <p class="text-sm text-gray-500">Track company expenses and salaries.</p>
                 </div>
-                <button type="button" onclick="if(window.KutussSync) { window.KutussSync.syncUnsynced(); if(typeof loadExpenses==='function') loadExpenses(); if(typeof loadDashboard==='function') loadDashboard(); }"
+                <button type="button" onclick="if(window.pullAllCloudRecords) window.pullAllCloudRecords(true); if(window.KutussSync) window.KutussSync.syncUnsynced(); if(typeof loadExpenses==='function') loadExpenses(); if(typeof loadDashboard==='function') loadDashboard();"
                     class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-                    title="Force refresh / sync with Firebase Cloud">
+                    title="Force refresh / sync with Supabase Cloud">
                     <i class="fa-solid fa-arrows-rotate"></i> Sync Cloud
                 </button>
             </div>
@@ -1785,9 +1785,14 @@
                     </div>
 
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="if(window.KutussSync) { window.KutussSync.syncUnsynced(); alert('Sync triggered successfully!'); }"
+                        <button type="button" onclick="if(window.pullAllCloudRecords) { window.pullAllCloudRecords(false); } if(window.KutussSync) { window.KutussSync.syncUnsynced(); }"
                             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-2 shadow-md shadow-blue-500/20">
                             <i class="fa-solid fa-arrows-rotate"></i> Sync Cloud Now
+                        </button>
+                        <button type="button" onclick="if(window.pullAllCloudRecords) { window.pullAllCloudRecords(false); }"
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-2 shadow-md shadow-indigo-500/20"
+                            title="Download all sales, expenses, projects from Supabase to this device">
+                            <i class="fa-solid fa-cloud-arrow-down"></i> Download All Cloud Data
                         </button>
                         <button type="button" onclick="testSupabaseConnection()"
                             class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-all flex items-center gap-2 border border-gray-300">

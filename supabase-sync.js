@@ -163,7 +163,7 @@
             return;
         }
 
-        const tableName = `kutuss_${table}`;
+        const tableName = `kutuss_${table}`.toLowerCase();
         const client = window.getSupabaseClient();
 
         if (action === 'delete') {
@@ -398,7 +398,7 @@
         realtimeChannel = client.channel('kutuss-pos-sync-channel');
 
         SYNC_TABLES.forEach(({ name: tableName, key: keyField }) => {
-            const sbTable = `kutuss_${tableName}`;
+            const sbTable = `kutuss_${tableName}`.toLowerCase();
             realtimeChannel.on('postgres_changes', { event: '*', schema: 'public', table: sbTable }, async (payload) => {
                 if (!window.db) return;
                 const localTable = window.db[tableName];
@@ -516,6 +516,97 @@
         }
     }
 
+    // 8B. Pull All Records from Supabase into Local Dexie (Initial sync for new devices & auto-sync)
+    window.pullAllCloudRecords = async function (silent = false) {
+        if (!window.isSupabaseConfigured() || !window.db || !navigator.onLine) return 0;
+        const cfg = window.getSupabaseConfig();
+        const client = window.getSupabaseClient();
+        if (!cfg.url || !cfg.anonKey) return 0;
+
+        if (!silent) setSyncStatus('syncing', 'Syncing from Cloud...');
+        let totalPulled = 0;
+
+        try {
+            for (const { name: tableName, key: keyField } of SYNC_TABLES) {
+                const localTable = window.db[tableName];
+                if (!localTable) continue;
+                const sbTable = `kutuss_${tableName}`.toLowerCase();
+
+                let cloudRows = null;
+
+                // 1. Try Supabase Client
+                if (client) {
+                    try {
+                        const { data, error } = await client.from(sbTable).select('*');
+                        if (!error && Array.isArray(data)) {
+                            cloudRows = data;
+                        }
+                    } catch (e) {
+                        console.warn(`Client pull error for ${sbTable}:`, e);
+                    }
+                }
+
+                // 2. Direct PostgREST fallback
+                if (!cloudRows && navigator.onLine) {
+                    try {
+                        const res = await fetch(`${cfg.url}/rest/v1/${sbTable}?select=*`, {
+                            headers: {
+                                'apikey': cfg.anonKey,
+                                'Authorization': `Bearer ${cfg.anonKey}`
+                            }
+                        });
+                        if (res.ok) {
+                            const rows = await res.json();
+                            if (Array.isArray(rows)) cloudRows = rows;
+                        }
+                    } catch (e) {
+                        console.warn(`PostgREST pull error for ${sbTable}:`, e);
+                    }
+                }
+
+                if (!Array.isArray(cloudRows) || cloudRows.length === 0) continue;
+
+                // Apply to local Dexie
+                isSyncingFromCloud = true;
+                try {
+                    const tombstones = getTombstones();
+                    for (const row of cloudRows) {
+                        const item = (row.data && typeof row.data === 'object') ? { ...row.data } : null;
+                        if (!item) continue;
+
+                        const docId = String(row.id || item[keyField] || '');
+                        if (tombstones[`${tableName}:${docId}`]) continue;
+                        if (item._deleted === true) continue;
+
+                        if (keyField === 'id' && item.id !== undefined && item.id !== null) {
+                            const numId = parseInt(item.id, 10);
+                            if (!isNaN(numId)) item.id = numId;
+                        }
+
+                        item._syncedToCloud = true;
+                        await localTable.put(item);
+                        totalPulled++;
+                    }
+                } catch (dexErr) {
+                    console.warn(`Dexie put error on ${tableName}:`, dexErr);
+                } finally {
+                    isSyncingFromCloud = false;
+                }
+            }
+        } catch (globalErr) {
+            console.warn('pullAllCloudRecords global error:', globalErr);
+        }
+
+        setSyncStatus('connected', 'Cloud Connected');
+        if (totalPulled > 0) {
+            debouncedUIRefresh();
+        }
+        if (!silent) {
+            alert(`✅ Cloud Sync Complete!\nSuccessfully downloaded ${totalPulled} records from Supabase.`);
+        }
+        return totalPulled;
+    };
+
     // 9. Full Cloud Migration: Upload all local Dexie data to Supabase
     window.uploadAllDataToSupabase = async function () {
         if (!window.isSupabaseConfigured()) {
@@ -612,19 +703,21 @@
         if (window.isSupabaseConfigured()) {
             setSyncStatus('connected', 'Cloud Connected');
             startRealtimeListeners();
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (navigator.onLine) {
+                    await window.pullAllCloudRecords(true);
                     processOfflineQueue();
                     syncUnsyncedLocalRecords();
                 }
-            }, 3000);
+            }, 800);
         } else {
             setSyncStatus('unconfigured', 'Connect Supabase');
         }
     }
 
-    window.addEventListener('online', () => {
+    window.addEventListener('online', async () => {
         setSyncStatus('connected', 'Back Online');
+        await window.pullAllCloudRecords(true);
         processOfflineQueue();
         syncUnsyncedLocalRecords();
     });
@@ -642,6 +735,7 @@
     window.KutussSync = {
         test: window.testSupabaseConnection,
         uploadAll: window.uploadAllDataToSupabase,
+        pullAll: window.pullAllCloudRecords,
         syncUnsynced: syncUnsyncedLocalRecords,
         deleteRecord: window.deleteCloudRecord,
         setStatus: setSyncStatus

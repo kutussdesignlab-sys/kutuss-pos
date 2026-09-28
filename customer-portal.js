@@ -169,7 +169,7 @@
 
     // Helper: Fetch all records from a Supabase table
     async function fetchAllDocs(collectionId) {
-        const tbl = collectionId.startsWith('kutuss_') ? collectionId : `kutuss_${collectionId}`;
+        const tbl = (collectionId.startsWith('kutuss_') ? collectionId : `kutuss_${collectionId}`).toLowerCase();
         const client = typeof window.getSupabaseClient === 'function' ? window.getSupabaseClient() : null;
         if (client) {
             try {
@@ -225,7 +225,7 @@
             if (tombstones[`${table}:${idClean}`]) return null;
         } catch (e) { }
 
-        const tbl = type === 'project' ? 'kutuss_projects' : (type === 'printOrder' ? 'kutuss_printOrders' : 'kutuss_sales');
+        const tbl = (type === 'project' ? 'kutuss_projects' : (type === 'printOrder' ? 'kutuss_printorders' : 'kutuss_sales')).toLowerCase();
         const fieldName = type === 'project' ? 'projectID' : (type === 'printOrder' ? 'orderNo' : 'receiptNo');
 
         const candidates = [idClean];
@@ -1063,17 +1063,17 @@
             try {
                 // Find existing row by primary id or orderNo
                 let row = null;
-                const { data: byId } = await client.from('kutuss_printOrders').select('*').eq('id', idStr).limit(1);
+                const { data: byId } = await client.from('kutuss_printorders').select('*').eq('id', idStr).limit(1);
                 if (byId && byId.length > 0) {
                     row = byId[0];
                 } else if (orderNoStr) {
-                    const { data: byOrderNo } = await client.from('kutuss_printOrders').select('*').eq('id', orderNoStr).limit(1);
+                    const { data: byOrderNo } = await client.from('kutuss_printorders').select('*').eq('id', orderNoStr).limit(1);
                     if (byOrderNo && byOrderNo.length > 0) row = byOrderNo[0];
                 }
 
                 if (row) {
                     const updatedData = { ...(row.data || {}), ...fields, _updatedAt: Date.now() };
-                    const { error } = await client.from('kutuss_printOrders').update({
+                    const { error } = await client.from('kutuss_printorders').update({
                         data: updatedData,
                         updated_at: Date.now()
                     }).eq('id', row.id);
@@ -1081,7 +1081,7 @@
                 } else {
                     const targetId = orderNoStr || idStr;
                     const newData = { id: targetId, orderNo: orderNoStr, ...fields, _updatedAt: Date.now() };
-                    const { error } = await client.from('kutuss_printOrders').upsert({
+                    const { error } = await client.from('kutuss_printorders').upsert({
                         id: targetId,
                         data: newData,
                         updated_at: Date.now()
@@ -1106,7 +1106,7 @@
                     };
                     const targetKey = orderNoStr || idStr;
                     // Get existing
-                    const getRes = await fetch(`${cfg.url}/rest/v1/kutuss_printOrders?id=eq.${encodeURIComponent(targetKey)}&select=*&limit=1`, {
+                    const getRes = await fetch(`${cfg.url}/rest/v1/kutuss_printorders?id=eq.${encodeURIComponent(targetKey)}&select=*&limit=1`, {
                         headers: { 'apikey': cfg.anonKey, 'Authorization': `Bearer ${cfg.anonKey}` }
                     });
                     let existingRow = null;
@@ -1119,7 +1119,7 @@
                     if (!mergedData.id) mergedData.id = targetKey;
                     if (orderNoStr && !mergedData.orderNo) mergedData.orderNo = orderNoStr;
 
-                    const upsertRes = await fetch(`${cfg.url}/rest/v1/kutuss_printOrders`, {
+                    const upsertRes = await fetch(`${cfg.url}/rest/v1/kutuss_printorders`, {
                         method: 'POST',
                         headers: { ...headers, 'Prefer': 'resolution=merge-duplicates' },
                         body: JSON.stringify({

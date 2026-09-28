@@ -5140,6 +5140,7 @@ window.exportDatabase = async function () {
             teamMembers: db.teamMembers ? await db.teamMembers.toArray() : [],
             memberProjectPayments: db.memberProjectPayments ? await db.memberProjectPayments.toArray() : [],
             payableBills: db.payableBills ? await db.payableBills.toArray() : [],
+            printOrders: db.printOrders ? await db.printOrders.toArray() : [],
             settings: await db.settings.toArray(),
             backupDate: new Date().toISOString(),
             version: 15
@@ -5189,6 +5190,7 @@ window.importDatabase = async function (input) {
             if (db.teamMembers) await db.teamMembers.clear();
             if (db.memberProjectPayments) await db.memberProjectPayments.clear();
             if (db.payableBills) await db.payableBills.clear();
+            if (db.printOrders) await db.printOrders.clear();
 
             // Insert data
             if (data.sales && data.sales.length > 0) await db.sales.bulkAdd(data.sales);
@@ -5200,6 +5202,7 @@ window.importDatabase = async function (input) {
             if (data.teamMembers && data.teamMembers.length > 0 && db.teamMembers) await db.teamMembers.bulkAdd(data.teamMembers);
             if (data.memberProjectPayments && data.memberProjectPayments.length > 0 && db.memberProjectPayments) await db.memberProjectPayments.bulkAdd(data.memberProjectPayments);
             if (data.payableBills && data.payableBills.length > 0 && db.payableBills) await db.payableBills.bulkAdd(data.payableBills);
+            if (data.printOrders && data.printOrders.length > 0 && db.printOrders) await db.printOrders.bulkAdd(data.printOrders);
             if (data.settings && data.settings.length > 0) await db.settings.bulkAdd(data.settings);
 
             alert("Data restored successfully! The application will now reload.");
@@ -7885,9 +7888,9 @@ window.syncPrintOrderToSupabase = async function (orderData) {
         };
 
         if (client) {
-            await client.from('kutuss_printOrders').upsert(payload, { onConflict: 'id' });
+            await client.from('kutuss_printorders').upsert(payload, { onConflict: 'id' });
             if (orderData.orderNo && String(orderData.orderNo) !== idStr) {
-                await client.from('kutuss_printOrders').upsert({
+                await client.from('kutuss_printorders').upsert({
                     id: String(orderData.orderNo),
                     data: cleanOrder,
                     updated_at: Date.now()
@@ -7903,7 +7906,7 @@ window.syncPrintOrderToSupabase = async function (orderData) {
                 'Content-Type': 'application/json',
                 'Prefer': 'resolution=merge-duplicates'
             };
-            await fetch(`${cfg.url}/rest/v1/kutuss_printOrders`, {
+            await fetch(`${cfg.url}/rest/v1/kutuss_printorders`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(payload)
